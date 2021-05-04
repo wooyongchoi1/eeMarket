@@ -502,11 +502,11 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Document doc = Jsoup.connect(url).get();
                 Elements el = doc.select("img");
-                /*
+
                 for(Element e : el) {
                     str = e.attr("src");
-                }*/
-                str = el.attr("src");
+                }
+                //str = el.attr("src");
             } catch (IOException e) {
                 e.printStackTrace();
             }
