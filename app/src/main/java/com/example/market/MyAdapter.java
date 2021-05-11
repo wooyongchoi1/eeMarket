@@ -20,7 +20,7 @@ public class MyAdapter extends BaseAdapter {
         sample = data;
         mLayoutInflater = LayoutInflater.from(mContext);
     }
-
+    void setSample(ArrayList<String> s){sample = s;this.notifyDataSetChanged();}
     @Override
     public int getCount() {
         return sample.size();
@@ -32,9 +32,7 @@ public class MyAdapter extends BaseAdapter {
     }
 
     @Override
-    public String getItem(int position) {
-        return sample.get(position);
-    }
+    public String getItem(int position) { return sample.get(position); }
 
     @Override
     public View getView(int position, View converView, ViewGroup parent) {

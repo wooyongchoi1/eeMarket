@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         mImageDetails = findViewById(R.id.image_details);
         mMainImage = findViewById(R.id.main_image);
         url = "https://www.11st.co.kr/products/"+getIntent().getExtras().getString("code")+"/view-desc";
-        uploadImage(url);
+        uploadImage("11번가",getIntent().getExtras().getString("code"));
     }
 /*
     public void startGalleryChooser() {
@@ -154,30 +154,52 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 */
-    public void uploadImage(String uri) {
-        String img_url = "qwe";
+    public void uploadImage(String mall, String code) {
+        List<String> img_url_list = new ArrayList<>();
         Bitmap bitmap = null;
-        if (uri != null) {
-            // scale the image to save on bandwidth
-            Crolling crol = new Crolling(uri);
-            try {
-                img_url = crol.execute().get();
-                StringBuffer temp = new StringBuffer(img_url);
-                temp.insert(4,"s");
-                loadImageTask imageTask = new loadImageTask(temp.toString());
-                bitmap = imageTask.execute().get();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+
+        if(mall.equals("11번가")) {
+            if (code != null) {
+                // scale the image to save on bandwidth
+                String url1 = "https://www.11st.co.kr/products/"+code+"/view-desc";
+                String url2 = "https://www.11st.co.kr/products/"+code+"?method=getSellerProductSmartOtionDetailViewDesc&finalDscPrc=9011";
+                Crolling crol1 = new Crolling(url1);
+                Crolling crol2 = new Crolling(url2);
+                try {
+                    img_url_list.addAll(crol1.execute().get());
+                    img_url_list.addAll(crol2.execute().get());
+                    Log.d("url123", url2);
+                    if(img_url_list.isEmpty()){
+                        Toast.makeText(this, R.string.not_found_detailImage, Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        /*for(String img_url : img_url_list) {
+
+                        }*/
+
+                        Log.d("img_url_list.get(0)", img_url_list.get(0));
+                        loadImageTask imageTask = new loadImageTask(img_url_list.get(0));
+                        bitmap = imageTask.execute().get();
+                        callCloudVision(bitmap);
+                        mMainImage.setImageBitmap(bitmap);
+
+                    }
+
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                //if(bitmap!=null) {
+                //    callCloudVision(bitmap);
+                //    mMainImage.setImageBitmap(bitmap);
+                //}
+
+
+            } else {
+                Log.d(TAG, "Image picker gave us a null image.");
+                Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();
             }
-
-            callCloudVision(bitmap);
-            mMainImage.setImageBitmap(bitmap);
-
-        } else {
-            Log.d(TAG, "Image picker gave us a null image.");
-            Toast.makeText(this, R.string.image_picker_error, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -485,7 +507,7 @@ public class MainActivity extends AppCompatActivity {
             mMainImage.setImageBitmap(bit);
         }
     }
-    public class Crolling extends AsyncTask<Bitmap, Void, String> {
+    public class Crolling extends AsyncTask<Bitmap, Void, List<String>> {
 
         private String url;
 
@@ -495,27 +517,32 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(Bitmap... params) {
+        protected List<String> doInBackground(Bitmap... params) {
 
-            String str=null;
+            List<String> strList= new ArrayList<>();
 
             try {
                 Document doc = Jsoup.connect(url).get();
                 Elements el = doc.select("img");
-
-                for(Element e : el) {
-                    str = e.attr("src");
+                if(el.isEmpty()){
+                    return strList;
                 }
-                //str = el.attr("src");
+                else {
+                    for (Element e : el) {
+                        strList.add( e.attr("src"));
+                    }
+                }
+
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            return str;
+            return strList;
         }
 
         @Override
-        protected void onPostExecute(String bit) {
+        protected void onPostExecute(List<String> bit) {
             super.onPostExecute(bit);
         }
     }
