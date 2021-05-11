@@ -42,6 +42,17 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.CameraBridgeViewBase;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -74,6 +85,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView mImageDetails;
     private ImageView mMainImage;
     String url;
+
+    //!!!!!
+    private Mat matInput;
+    private Mat gray;
+    private Mat gray2;
+    //처리한 이미지
+    private Mat matResult;
+    //선이 추가된 이미지
+    private Mat matResult2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +174,51 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 */
+
+    //!!!!!!
+private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+    @Override
+    public void onManagerConnected(int status) {
+        switch (status) {
+            case LoaderCallbackInterface.SUCCESS:
+            {
+                Log.i("OpenCV", "OpenCV loaded successfully");
+                //imageMat=new Mat();
+
+                //초기화
+                OpenCVLoader.initDebug();
+                gray = new Mat();
+                gray2 = new Mat();
+
+                matResult = new Mat();
+                //선이 적용된 결과
+                matResult2 = new Mat();
+
+                //선
+                Mat lines = new Mat();
+
+//                gray = new Mat(bitmap1.getHeight(), bitmap1.getHeight(), CvType.CV_8UC4);
+            } break;
+            default:
+            {
+                super.onManagerConnected(status);
+            } break;
+        }
+    }
+};
+
+public void onResume()
+{
+    super.onResume();
+    if (!OpenCVLoader.initDebug()) {
+        Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+    } else {
+        Log.d("OpenCV", "OpenCV library found inside package. Using it!");
+        mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+    }
+}
+
     public void uploadImage(String uri) {
         String img_url = "qwe";
         Bitmap bitmap = null;
@@ -172,8 +237,64 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+        Bitmap bitmap1 = bitmap;
+            Bitmap bitmap_result = null;
+//        Mat gray = new Mat();
+//            Mat gray = new Mat(bitmap1.getHeight(), bitmap1.getHeight(), CvType.CV_8UC4);
+
+            //(위에 이미 선언되어 있지만), null 오류 해결을 위해 추가했음, 그레이를 초기화
+            //초기화
+            OpenCVLoader.initDebug();
+            gray = new Mat();
+            gray2 = new Mat();
+
+            matResult = new Mat();
+            //선이 적용된 결과
+            matResult2 = new Mat();
+
+            //선
+            Mat lines = new Mat();
+
+
+            //변환1
+            Utils.bitmapToMat(bitmap1, gray);
+
+            //변형없는 이미지 추가를 위해 넣음
+            Utils.bitmapToMat(bitmap1, gray2);
+
+            Imgproc.GaussianBlur(gray, gray, new Size(1,1) , 0);
+            //캐니 결과를 행렬결과에 저장
+            Imgproc.Canny(gray, matResult, 100, 200);
+            //최종 결과 변수에 원래 이미지를 저장함
+            matResult2=gray2;
+            //캐니 결과 사용해서 선 검출하기
+            Imgproc.HoughLinesP(matResult,lines,1,Math.PI/100,80,500,10);
+
+
+            for (int x = 0; x < lines.cols(); x++)
+            {
+                double[] vec = lines.get(0, x);
+                double x1 = vec[0],
+                        y1 = vec[1],
+                        x2 = vec[2],
+                        y2 = vec[3];
+                Point start = new Point(x1, y1);
+                Point end = new Point(x2, y2);
+                //최종 결과에 선을 적용하기
+                Imgproc.line(matResult2, start, end, new Scalar(255,0,0), 5);
+
+            }
+
+            //비트맵_결과를 초기화한다, null 오류를 해결
+            bitmap_result= Bitmap.createBitmap(matResult2.cols(), matResult2.rows(), Bitmap.Config.ARGB_8888);
+
+            //변환2
+            Utils.matToBitmap(matResult2,bitmap_result);
+
             callCloudVision(bitmap);
-            mMainImage.setImageBitmap(bitmap);
+            mMainImage.setImageBitmap(bitmap_result);
+//            callCloudVision(bitmap);
+//            mMainImage.setImageBitmap(bitmap);
 
         } else {
             Log.d(TAG, "Image picker gave us a null image.");
@@ -285,6 +406,8 @@ public class MainActivity extends AppCompatActivity {
     private void callCloudVision(final Bitmap bitmap) {
         // Switch text to loading
         mImageDetails.setText(R.string.loading_message);
+
+
 
         // Do the real work in an async task, because we need to use the network anyway
         try {
@@ -481,8 +604,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Bitmap bit) {
-            super.onPostExecute(bit);
-            mMainImage.setImageBitmap(bit);
+            //opencv 함수를 거친 이미지가 적용이 안되어서 제거함
+//            super.onPostExecute(bit);
+//            mMainImage.setImageBitmap(bit);
         }
     }
     public class Crolling extends AsyncTask<Bitmap, Void, String> {
