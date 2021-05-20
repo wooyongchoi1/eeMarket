@@ -80,14 +80,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button mButton = findViewById(R.id.button);
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
 
         mImageDetails = findViewById(R.id.image_details);
         mMainImage = findViewById(R.id.main_image);
@@ -180,8 +172,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("img_url_list.get(0)", img_url_list.get(0));
                         loadImageTask imageTask = new loadImageTask(img_url_list.get(0));
                         bitmap = imageTask.execute().get();
-                        callCloudVision(bitmap);
                         mMainImage.setImageBitmap(bitmap);
+                        callCloudVision(bitmap);
 
                     }
 
@@ -472,41 +464,7 @@ public class MainActivity extends AppCompatActivity {
         return message.toString();
     }
 
-    public class loadImageTask extends AsyncTask<Bitmap, Void, Bitmap> {
 
-        private String url;
-
-        public loadImageTask(String url) {
-
-            this.url = url;
-        }
-
-        @Override
-        protected Bitmap doInBackground(Bitmap... params) {
-
-            Bitmap imgBitmap = null;
-
-            try {
-                URL url1 = new URL(url);
-                URLConnection conn = url1.openConnection();
-                conn.connect();
-                int nSize = conn.getContentLength();
-                BufferedInputStream bis = new BufferedInputStream(conn.getInputStream(), nSize);
-                imgBitmap = BitmapFactory.decodeStream(bis);
-                bis.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return imgBitmap;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bit) {
-            super.onPostExecute(bit);
-            mMainImage.setImageBitmap(bit);
-        }
-    }
     public class Crolling extends AsyncTask<Bitmap, Void, List<String>> {
 
         private String url;

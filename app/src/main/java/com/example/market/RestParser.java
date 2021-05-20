@@ -23,16 +23,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 
-public class RestParser extends AsyncTask<List<ProductInfo>, Void, List<ProductInfo>> {
+public class RestParser extends AsyncTask<List<ProductInfo>, Void, ArrayList<ProductInfo>> {
     private String url;
     public RestParser(String url) {
         this.url = url;
     }
 
     @Override
-    protected List<ProductInfo> doInBackground(List<ProductInfo>... params) {
+    protected ArrayList<ProductInfo> doInBackground(List<ProductInfo>... params) {
 
-        List<ProductInfo> list = new ArrayList<>();
+        ArrayList<ProductInfo> list = new ArrayList<>();
         Document doc = null;
         try {
             URL url1 = new URL(url);
@@ -49,8 +49,12 @@ public class RestParser extends AsyncTask<List<ProductInfo>, Void, List<ProductI
                 String code = titleNodeList.item(0).getChildNodes().item(0).getNodeValue();
                 titleNodeList = element.getElementsByTagName("ProductName");
                 String name = titleNodeList.item(0).getChildNodes().item(0).getNodeValue();
+                titleNodeList = element.getElementsByTagName("ProductPrice");
+                String price = titleNodeList.item(0).getChildNodes().item(0).getNodeValue();
+                titleNodeList = element.getElementsByTagName("ProductImage200");
+                String image = titleNodeList.item(0).getChildNodes().item(0).getNodeValue();
 
-                list.add(new ProductInfo(code, name));
+                list.add(new ProductInfo(code, name, price, image));
             }
         } catch (IOException | SAXException | ParserConfigurationException e) {
             e.printStackTrace();
@@ -60,7 +64,7 @@ public class RestParser extends AsyncTask<List<ProductInfo>, Void, List<ProductI
     }
 
     @Override
-    protected void onPostExecute(List<ProductInfo> L) {
+    protected void onPostExecute(ArrayList<ProductInfo> L) {
         super.onPostExecute(L);
     }
 }

@@ -1,26 +1,29 @@
 package com.example.market;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class MyAdapter extends BaseAdapter {
 
     Context mContext;
     LayoutInflater mLayoutInflater = null;
-    ArrayList<String> sample;
+    ArrayList<ProductInfo> sample;
 
-    public MyAdapter(Context context, ArrayList<String> data) {
+    public MyAdapter(Context context, ArrayList<ProductInfo> data) {
         mContext = context;
         sample = data;
         mLayoutInflater = LayoutInflater.from(mContext);
     }
-    void setSample(ArrayList<String> s){sample = s;this.notifyDataSetChanged();}
+    void setSample(ArrayList<ProductInfo> s){sample = s;this.notifyDataSetChanged();}
     @Override
     public int getCount() {
         return sample.size();
@@ -32,7 +35,7 @@ public class MyAdapter extends BaseAdapter {
     }
 
     @Override
-    public String getItem(int position) { return sample.get(position); }
+    public ProductInfo getItem(int position) { return sample.get(position); }
 
     @Override
     public View getView(int position, View converView, ViewGroup parent) {
@@ -40,10 +43,22 @@ public class MyAdapter extends BaseAdapter {
 
 
         TextView productName = (TextView)view.findViewById(R.id.productname);
-        TextView price = (TextView)view.findViewById(R.id.price);
+        TextView productPrice = (TextView)view.findViewById(R.id.price);
+        ImageView productImage = view.findViewById(R.id.thumbnail);
+        loadImageTask imageTask = new loadImageTask(sample.get(position).getImage());
+        Bitmap bitmap = null;
 
-        productName.setText(sample.get(position));
+        try {
+            bitmap = imageTask.execute().get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
+        productName.setText(sample.get(position).getName());
+        productPrice.setText(sample.get(position).getPrice());
+        productImage.setImageBitmap(bitmap);
 
         return view;
     }

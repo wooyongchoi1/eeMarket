@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class SearchList extends AppCompatActivity {
-    ArrayList<String> data = new ArrayList<>();
-    List<ProductInfo> list ;
+    ArrayList<ProductInfo> list = new ArrayList<>();
     ListView listView;
     MyAdapter myAdapter;
     Button preButton, postButton;
@@ -36,7 +35,7 @@ public class SearchList extends AppCompatActivity {
         preButton = findViewById(R.id.preButton);
         postButton = findViewById(R.id.postButton);
         pageNumTextView = findViewById(R.id.pageNum);
-        myAdapter = new MyAdapter(this, data);
+        myAdapter = new MyAdapter(this, list);
         preButton.setOnClickListener(v->{
             pageNum--;
             onResume();
@@ -65,7 +64,6 @@ public class SearchList extends AppCompatActivity {
         pageNumTextView.setText(pageNum+"페이지");
 
         RestParser parser = new RestParser(url + "&pageNum="+pageNum+"&pageSize=10");
-        data.clear();
         try {
             list = parser.execute().get();
         } catch (ExecutionException e) {
@@ -73,17 +71,13 @@ public class SearchList extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        for(ProductInfo p : list){
-            data.add(p.getName());
-        }
-        for(String d : data){
-            Log.d("name", d);
-        }
-        myAdapter.setSample(data);
+
+        
+        myAdapter.setSample(list);
         listView.setAdapter(myAdapter);
 
 
-        if(data.size() < 10){ postButton.setEnabled(false); }
+        if(list.size() < 10){ postButton.setEnabled(false); }
         else{postButton.setEnabled(true);}
     }
 }
