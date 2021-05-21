@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(mall.equals("11번가")) {
             if (code != null) {
-                // scale the image to save on bandwidth
+                // scale the image to save on bandwidth no
                 String url1 = "https://www.11st.co.kr/products/"+code+"/view-desc";
                 String url2 = "https://www.11st.co.kr/products/"+code+"?method=getSellerProductSmartOtionDetailViewDesc&finalDscPrc=9011";
                 Crolling crol1 = new Crolling(url1);
