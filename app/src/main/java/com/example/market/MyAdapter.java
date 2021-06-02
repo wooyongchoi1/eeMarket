@@ -12,6 +12,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
+//리스트뷰의 어댑터 클래스입니다. 이 어댑터가 리스트뷰의 아이템 구성상태를 결정합니다.
+
 public class MyAdapter extends BaseAdapter {
 
     Context mContext;

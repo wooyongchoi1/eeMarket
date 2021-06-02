@@ -28,7 +28,7 @@ android {
     }
     externalNativeBuild {
         ndkBuild {
-            path file('C:/eeMarket-errrr_test1_line/app/src/main/jni/Android.mk')
+            path file('C:/Users/dndyd/AndroidStudioProjects/markettt/app/src/main/jni/Android.mk')
         }
     }
 }

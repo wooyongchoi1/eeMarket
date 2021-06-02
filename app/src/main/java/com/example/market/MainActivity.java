@@ -87,7 +87,12 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mImageDetails;
     private ImageView mMainImage;
-    String url;
+    private List<String> img_url_list;
+    private List<Bitmap> img_list;
+    Button preButton, postButton;
+    TextView pageNumTextView;
+    int num=1;
+
 
 //추가
 //    public native Bitmap[] imgCrop(Bitmap bitmap);
@@ -118,9 +123,18 @@ private Mat gray;
         }
     };
     //추가
+    @Override
     public void onResume()
     {
         super.onResume();
+        Bitmap bitmap = img_list.get(num-1);  //img_list 중 num-1번째 비트맵 선택
+
+        if(num==1)preButton.setEnabled(false);  //1페이지일경우 이전버튼 비활성화
+        else preButton.setEnabled(true);
+
+        if(num>=img_list.size())postButton.setEnabled(false);  //마지막 페이지일 경우 다음버튼 비활성화
+        else postButton.setEnabled(true);
+
         if (!OpenCVLoader.initDebug()) {
             Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
@@ -128,6 +142,10 @@ private Mat gray;
             Log.d("OpenCV", "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
+        pageNumTextView.setText(num+"페이지");
+        mMainImage.setImageBitmap(bitmap);
+        callCloudVision(bitmap);
+
     }
 
     @Override
@@ -138,12 +156,32 @@ private Mat gray;
 
         //int result = test(5);
         //Log.d("C확인",String.valueOf(result));
-        onResume();
-
+        img_url_list = new ArrayList<>();
+        img_list = new ArrayList<>();
         mImageDetails = findViewById(R.id.image_details);
         mMainImage = findViewById(R.id.main_image);
-        url = "https://www.11st.co.kr/products/"+getIntent().getExtras().getString("code")+"/view-desc";
-        uploadImage("11번가",getIntent().getExtras().getString("code"));
+        preButton = findViewById(R.id.preButton2);
+        postButton = findViewById(R.id.postButton2);
+        pageNumTextView = findViewById(R.id.pageNum2);
+
+        //버튼 클릭리스너, num변수를 증감하고 onResume으로 새로고침
+        preButton.setOnClickListener(v->{
+            num--;
+            onResume();
+        });
+        postButton.setOnClickListener(v->{
+            num++;
+            onResume();
+        });
+
+        getImageUrl("11번가",getIntent().getExtras().getString("code"));  //먼저 img_url_list 부터 채움
+
+        if(img_url_list.isEmpty()){
+            mImageDetails.setText("상세이미지가 없습니다.");
+        }
+        else{
+            getImageList();  //img_url_list가 정상적으로 채워지면 이것을 통해 img_list를 채움
+        }
     }
 /*
     public void startGalleryChooser() {
@@ -207,9 +245,9 @@ private Mat gray;
 */
 
     //직선검출 후 이미지를 자르는 함수, 입력은 비트맵, 출력은 비트맵 배열
-    public Bitmap[] imgCrop(Bitmap bitmap){
+    public List<Bitmap> imgCrop(Bitmap bitmap){
 
-        Bitmap bitmap_crop_result[]=new Bitmap[9];
+        List<Bitmap> bitmap_crop_result = new ArrayList<>();
 
         Bitmap bitmap1 = bitmap;
 //        Bitmap bitmap_result = null;
@@ -282,19 +320,21 @@ private Mat gray;
 
             //인식되는 선이 있으면 자른다
             if(line_num!=0) {
-
                 //자른다
                 for (int i = 0; i < (line_num + 1); i++) {
 
                     if (i == 0) {
                         cur_h = (int) cropline_y[0];
-                        bitmap_crop_result[i] = Bitmap.createBitmap(bitmap, 0, 0, orgW - 1, cur_h);
+                        if(cur_h <=0) continue;
+                        bitmap_crop_result.add( Bitmap.createBitmap(bitmap, 0, 0, orgW - 1, cur_h));
                     } else if (i < line_num) {
                         cur_h = (int) cropline_y[i - 1] - (int) cropline_y[i];
-                        bitmap_crop_result[i] = Bitmap.createBitmap(bitmap, 0, (int) cropline_y[i - 1], orgW - 1, cur_h);
+                        if(cur_h <=0) continue;
+                        bitmap_crop_result.add( Bitmap.createBitmap(bitmap, 0, (int) cropline_y[i - 1], orgW - 1, cur_h));
                     } else if (i == line_num) {
                         cur_h = orgH - (int) cropline_y[i - 1] - 1;
-                        bitmap_crop_result[i] = Bitmap.createBitmap(bitmap, 0, (int) cropline_y[i - 1], orgW - 1, cur_h);
+                        if(cur_h <=0) continue;
+                        bitmap_crop_result.add( Bitmap.createBitmap(bitmap, 0, (int) cropline_y[i - 1], orgW - 1, cur_h));
                     }
 
                     Log.d("자르려는 높이", Integer.toString(cur_h));
@@ -303,7 +343,7 @@ private Mat gray;
                 }
             }
             else{
-                bitmap_crop_result[0]=bitmap;
+                bitmap_crop_result.add(bitmap);
             }
         }
         else{
@@ -313,11 +353,29 @@ private Mat gray;
         return bitmap_crop_result;
     }
 
-    public void uploadImage(String mall, String code) {
-        List<String> img_url_list = new ArrayList<>();
+    //비트맵 리스트를 만드는 함수. 멤버변수중 img_list를 채움
+    public void getImageList(){
+        Bitmap bitmap = null;
+        List<Bitmap> bitmap_crop_result;
+        for(String img_url : img_url_list){  //모든 url에 대해서 반복
+            loadImageTask imageTask = new loadImageTask(img_url);
+            try {
+                bitmap = imageTask.execute().get();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            bitmap_crop_result = imgCrop(bitmap);  //비트맵을 그냥 리스트에 넣지 않고 잘라서 넣음
+            img_list.addAll(bitmap_crop_result);   //잘린 비트맵 리스트를 img_list에 추가
+        }
+    }
+
+    //상세이미지 url 리스트를 구하는 메소드. 멤버변수 img_url_list를 채움
+    public void getImageUrl(String mall, String code) {
         Bitmap bitmap = null;
 
-        if(mall.equals("11번가")) {
+        if(mall.equals("11번가")) {  //11번가에 대해서, 추후 다른 쇼핑몰일 경우 elseif 로 추가해야함
             if (code != null) {
                 // scale the image to save on bandwidth no
                 String url1 = "https://www.11st.co.kr/products/"+code+"/view-desc";
@@ -327,46 +385,11 @@ private Mat gray;
                 try {
                     img_url_list.addAll(crol1.execute().get());
                     img_url_list.addAll(crol2.execute().get());
-                    Log.d("url123", url2);
-                    if(img_url_list.isEmpty()){
-                        Toast.makeText(this, R.string.not_found_detailImage, Toast.LENGTH_LONG).show();
-                    }
-                    else {
-                        /*for(String img_url : img_url_list) {
-
-                        }*/
-
-                        Log.d("img_url_list.get(0)", img_url_list.get(0));
-                        loadImageTask imageTask = new loadImageTask(img_url_list.get(0));
-                        bitmap = imageTask.execute().get();
-
-                        //이미지 나누기 함수(긴 이미지 입력, 여러 이미지 출력) 추가해야함, 하는 중
-                        //텍스트 그룹핑 함수(적당한 크기 이미지 입력, 문자열 배열 출력) 추가해야함
-
-
-                        Bitmap bitmap_crop_result[]= new Bitmap[9];
-                        //이미지 자르기(지금 아주 진한 경계로만 잘림)
-                        bitmap_crop_result = imgCrop(bitmap);
-
-                        mMainImage.setImageBitmap(bitmap);
-                        //일단 첫번째 이미지만 입력
-                        callCloudVision(bitmap_crop_result[0]);
-
-                        //원래 코드
-//                        mMainImage.setImageBitmap(bitmap);
-//                        callCloudVision(bitmap);
-
-                    }
-
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                //if(bitmap!=null) {
-                //    callCloudVision(bitmap);
-                //    mMainImage.setImageBitmap(bitmap);
-                //}
 
 
             } else {
@@ -512,7 +535,7 @@ private Mat gray;
     }
 
     private static String convertResponseToString(BatchAnnotateImagesResponse response) {
-        StringBuilder message = new StringBuilder("I found these things:\n\n");
+        StringBuilder message = new StringBuilder();
 
         List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
         BoundingPoly block;
@@ -635,7 +658,7 @@ private Mat gray;
 
         else
         {
-            message.append( "nothing");
+            message.append( "텍스트가 없습니다.");
 
         }
         String []tokens = message.toString().split("\n");

@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
+//이미지 url을 비트맵으로 변환하는 클래스, string(url)을 받고 bitmap을 반환합니다.
+//MyAdapter 와 MainAtivity에서 사용됨
 public class loadImageTask extends AsyncTask<Bitmap, Void, Bitmap> {
 
     private String url;

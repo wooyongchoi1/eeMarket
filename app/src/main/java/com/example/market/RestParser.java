@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+//rest방식으로 파싱하는 클래스
 
 public class RestParser extends AsyncTask<List<ProductInfo>, Void, ArrayList<ProductInfo>> {
     private String url;
@@ -42,7 +43,7 @@ public class RestParser extends AsyncTask<List<ProductInfo>, Void, ArrayList<Pro
             doc.getDocumentElement().normalize();
             NodeList itemNodeList = doc.getElementsByTagName("Product");
 
-            for(int i=0; i<itemNodeList.getLength();i++){
+            for(int i=0; i<itemNodeList.getLength();i++){  //이건 11번가 xml파일 형식에 맞춘 파싱임, 다른 쇼핑몰은 새로 만들어야함
                 Node node = itemNodeList.item(i);
                 Element element = (Element) node;
                 NodeList titleNodeList = element.getElementsByTagName("ProductCode");
