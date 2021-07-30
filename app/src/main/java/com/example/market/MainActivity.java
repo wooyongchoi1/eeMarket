@@ -267,14 +267,15 @@ private Mat gray;
 
         List<Bitmap> bitmap_crop_result = new ArrayList<>();
 
-        Bitmap bitmap1 = bitmap;
-        //!!!
-        //Bitmap bitmap_result = null;
-        // bitmap_result = new Bitmap(bitmap1.getHeight(), bitmap1.getHeight(), CvType.CV_8UC4);
-        Bitmap bitmap_result = Bitmap.createBitmap(bitmap1.getWidth(),  bitmap1.getHeight(), Bitmap.Config.ARGB_8888);
+
 
 
         if(bitmap!=null) {
+            Bitmap bitmap1 = bitmap;
+            //!!!
+            //Bitmap bitmap_result = null;
+            // bitmap_result = new Bitmap(bitmap1.getHeight(), bitmap1.getHeight(), CvType.CV_8UC4);
+            Bitmap bitmap_result = Bitmap.createBitmap(bitmap1.getWidth(),  bitmap1.getHeight(), Bitmap.Config.ARGB_8888);
             OpenCVLoader.initDebug();
             Mat gray = new Mat();
             gray = new Mat(bitmap1.getHeight(), bitmap1.getWidth(), CvType.CV_8UC4);
