@@ -43,6 +43,7 @@ public abstract class MyRecognitionListener implements RecognitionListener {
             default: message = "알 수 없는 오류임"; break;
         }
         //Toast.makeText(getApplicationContext(), "에러가 발생하였습니다. : " + message,Toast.LENGTH_SHORT).show();
+        sttError();
     }
 
     @Override

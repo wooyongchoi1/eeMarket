@@ -13,12 +13,15 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -63,11 +67,15 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -85,13 +93,14 @@ public class MainActivity extends AppCompatActivity {
     public static final int CAMERA_IMAGE_REQUEST = 3;
 
 
-    private TextView mImageDetails;
-    private ImageView mMainImage;
-    private List<String> img_url_list;
-    private List<Bitmap> img_list;
-    Button preButton, postButton;
-    TextView pageNumTextView;
-    int num=1;
+    private ListView mainListView;
+    private ImgAdapter mImgAdapter;
+    private ArrayList<Pair<Bitmap,String>> main_list;
+    private ArrayList<Pair<Bitmap,String>> ready_list;
+    private ArrayList<String> img_url_list;
+
+    private  AsyncTask<Object, Pair<Integer,String>, String> labelDetectionTask;
+
 
 
 //추가
@@ -123,30 +132,6 @@ private Mat gray;
         }
     };
     //추가
-    @Override
-    public void onResume()
-    {
-        super.onResume();
-        Bitmap bitmap = img_list.get(num-1);  //img_list 중 num-1번째 비트맵 선택
-
-        if(num==1)preButton.setEnabled(false);  //1페이지일경우 이전버튼 비활성화
-        else preButton.setEnabled(true);
-
-        if(num>=img_list.size())postButton.setEnabled(false);  //마지막 페이지일 경우 다음버튼 비활성화
-        else postButton.setEnabled(true);
-
-        if (!OpenCVLoader.initDebug()) {
-            Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
-        } else {
-            Log.d("OpenCV", "OpenCV library found inside package. Using it!");
-            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
-        }
-        pageNumTextView.setText(num+"페이지");
-        mMainImage.setImageBitmap(bitmap);
-        callCloudVision(bitmap);
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,34 +141,67 @@ private Mat gray;
 
         //int result = test(5);
         //Log.d("C확인",String.valueOf(result));
+        main_list = new ArrayList<>();
+        ready_list = new ArrayList<>();
         img_url_list = new ArrayList<>();
-        img_list = new ArrayList<>();
-        mImageDetails = findViewById(R.id.image_details);
-        mMainImage = findViewById(R.id.main_image);
-        preButton = findViewById(R.id.preButton2);
-        postButton = findViewById(R.id.postButton2);
-        pageNumTextView = findViewById(R.id.pageNum2);
+        mainListView = findViewById(R.id.main_listview);
+        mImgAdapter = new ImgAdapter(this,main_list);
 
-        //버튼 클릭리스너, num변수를 증감하고 onResume으로 새로고침
-        preButton.setOnClickListener(v->{
-            num--;
-            onResume();
-        });
-        postButton.setOnClickListener(v->{
-            num++;
-            onResume();
-        });
+
+        if (!OpenCVLoader.initDebug()) {
+            Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+        } else {
+            Log.d("OpenCV", "OpenCV library found inside package. Using it!");
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
 
         getImageUrl("11번가",getIntent().getExtras().getString("code"));  //먼저 img_url_list 부터 채움
 
         if(img_url_list.isEmpty()){
-            mImageDetails.setText("상세이미지가 없습니다.");
+            //mImageDetails.setText("상세이미지가 없습니다.");
         }
         else{
-            getImageList();  //img_url_list가 정상적으로 채워지면 이것을 통해 img_list를 채움
+            ready_list.add(Pair.create(null,"이미지 준비중입니다."));
+            mImgAdapter.setSample(ready_list);
+            mainListView.setAdapter(mImgAdapter);
         }
     }
-/*
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Handler handler = new Handler();
+        new Thread(()->{
+            getImageList();
+            if(!main_list.isEmpty()) {
+                handler.post(() -> {
+                    mImgAdapter.setSample(main_list);
+                    mImgAdapter.notifyDataSetChanged();
+                    labelDetectionTask = new LableDetectionTask(this, main_list);
+                    labelDetectionTask.execute();
+
+                });
+            }
+            else{
+                main_list.add(Pair.create(null,"이미지 로드 실패"));
+                handler.post(()->{
+                    mImgAdapter.setSample(main_list);
+                    mImgAdapter.notifyDataSetChanged();
+                });
+            }
+        }).start();
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(labelDetectionTask.getStatus() == AsyncTask.Status.RUNNING){
+            labelDetectionTask.cancel(true);
+        }
+    }
+    /*
     public void startGalleryChooser() {
         if (PermissionUtils.requestPermission(this, GALLERY_PERMISSIONS_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE)) {
             Intent intent = new Intent();
@@ -250,17 +268,22 @@ private Mat gray;
         List<Bitmap> bitmap_crop_result = new ArrayList<>();
 
         Bitmap bitmap1 = bitmap;
-//        Bitmap bitmap_result = null;
+        //!!!
+        //Bitmap bitmap_result = null;
+        // bitmap_result = new Bitmap(bitmap1.getHeight(), bitmap1.getHeight(), CvType.CV_8UC4);
+        Bitmap bitmap_result = Bitmap.createBitmap(bitmap1.getWidth(),  bitmap1.getHeight(), Bitmap.Config.ARGB_8888);
+
 
         if(bitmap!=null) {
             OpenCVLoader.initDebug();
             Mat gray = new Mat();
-            gray = new Mat(bitmap1.getHeight(), bitmap1.getHeight(), CvType.CV_8UC4);
+            gray = new Mat(bitmap1.getHeight(), bitmap1.getWidth(), CvType.CV_8UC4);
 
             Mat gray2 = new Mat();
 
+            //!!!
             Mat matResult = new Mat();
-//            Mat matResult2 = new Mat();
+            Mat matResult2 = new Mat();
 
             Mat lines = new Mat();
 
@@ -270,13 +293,108 @@ private Mat gray;
             //변형없는 이미지 추가를 위해 넣음
             Utils.bitmapToMat(bitmap1, gray2);
 
-            Imgproc.GaussianBlur(gray, gray, new Size(1, 1), 0);
+            Imgproc.GaussianBlur(gray, gray, new Size(9, 9), 0);
             //캐니 결과를 행렬결과에 저장
-            Imgproc.Canny(gray, matResult, 100, 200);
+            //100,200
+            //,130
+            Imgproc.Canny(gray, matResult, 50, 130);
+
+            //글자인식때문에..
+            Mat se = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(4,4));
+            Imgproc.morphologyEx(matResult,matResult2,Imgproc.MORPH_CLOSE,se);
+            //matResult2는 흑백
+
+
             //최종 결과 변수에 원래 이미지를 저장함
 //            matResult2 = gray2;
             //캐니 결과 사용해서 선 검출하기
-            Imgproc.HoughLinesP(matResult, lines, 1, Math.PI / 100, 80, 500, 10);
+            //500,300,
+            //100,10
+            Imgproc.HoughLinesP(matResult2, lines, 1, Math.PI/ 100, 80, 700, 10);
+            //선 결과가 나옴
+            //int saveNum=0;
+            int line_num = 0;
+            double[] cropline_y = new double[20];
+//            double py=0;
+
+            //lines가 null이면 오류가 생기나..?
+            for (int x = 0; x < lines.rows(); x++) {
+
+
+                double[] vec = lines.get(x, 0);
+                double x1 = vec[0],
+                        y1 = vec[1],
+                        x2 = vec[2],
+                        y2 = vec[3];
+                Log.d("직선시작", String.valueOf(x1));
+                Log.d("직선시작", String.valueOf(y1));
+                Log.d("직선끝", String.valueOf(x2));
+                Log.d("직선끝", String.valueOf(y2));
+
+                //직선이 아니라면
+                if (y1 != y2) {
+                    continue;
+                }
+
+                Point start = new Point(x1, y1);
+                Point end = new Point(x2, y2);
+                //최종 결과에 선을 적용하기, 원래 사진에 적용
+                //Imgproc.line(gray2, start, end, new Scalar(255, 255, 0), 5);
+                if(x==0 ) {
+                    cropline_y[line_num] = y1 ;
+
+
+                    line_num++;
+                }
+//                if(x!=0&&y1-py<300){
+//
+//                    //cropline_y[line_num] = y1 ;
+//                    py=y1;
+//                    Log.d("!!!!!!``````", String.valueOf(line_num));
+//                    //line_num++;
+//                }
+
+
+                //변환된 이미지에 선을 적용하기
+                //Imgproc.line(matResult2, start, end, new Scalar(255, 255, 0), 5);
+
+            }
+
+            for(int i=0;i<line_num;i++){
+                for(int j=i+1;j<line_num;j++){
+                    if(cropline_y[i]>cropline_y[j]){
+                        double mid=cropline_y[i];
+                        cropline_y[i]=cropline_y[j];
+                        cropline_y[j]=mid;
+//                        Log.d("!!!!!!", String.valueOf(line_num));
+                    }
+                }
+            }
+
+            int cnt_m=0;
+            for(int i=0;i<line_num;i++){
+
+                if(i==line_num-1){
+
+
+                }
+                else {
+                    if (cropline_y[i+1] - cropline_y[i]<450) {
+                        //인덱스i+1을 건너뛰어야함
+                        //인덱스를 저장
+                    }
+                }
+
+            }
+            //배열을 새로만들어서 , 2개
+            //저장된 인덱스값에 0을 저장
+            //0인 인덱스값은 제외하고 순서대로 저장
+
+
+            //!!!
+            //이미지 처리
+            //Utils.matToBitmap(gray2, bitmap_result);
+            //Utils.matToBitmap(matResult2, bitmap_result);
 
 
             //자르기
@@ -288,52 +406,59 @@ private Mat gray;
 
             int orgW = bitmap.getWidth();
             int orgH = bitmap.getHeight();
+//
+//
+//            //선언
 
-
-            //선언
-            int line_num = 0;
-
+//
             int cur_h = 0;
-            double[] cropline_y = new double[8];
-            //선의 개수 카운트
-            for (int x = 0; x < lines.cols(); x++) {
-                line_num++;
-
-                double[] vec = lines.get(0, x);
-
-                double x1 = vec[0],
-                        y1 = vec[1],
-                        x2 = vec[2],
-                        y2 = vec[3];
-
-                //직선이 아니라면 넘어감
-                if (y1 != y2) {
-                    continue;
-                }
-
-                cropline_y[x] = vec[1];
-                Log.d("y좌표", String.valueOf(cropline_y[x]));
-
-            }
+//            double[] cropline_y = new double[20];
+//            //선의 개수 카운트
+//            for (int x = 0; x < lines.rows(); x++) {
+//                line_num++;
+//
+//                double[] vec = lines.get(x, 0);
+//
+//                double x1 = vec[0],
+//                        y1 = vec[1],
+//                        x2 = vec[2],
+//                        y2 = vec[3];
+//
+//                //직선이 아니라면 넘어감
+//                if (y1 != y2) {
+//                    continue;
+//                }
+//                //1
+//                if(vec[0]>450) cropline_y[x] = vec[0];
+//                Log.d("y좌표", String.valueOf(cropline_y[x]));
+//
+//            }
             Log.d("선의 개수", String.valueOf(line_num));
+            Log.d("선의 개수", String.valueOf(cropline_y[0]));
+            Log.d("선의 개수", String.valueOf(cropline_y[1]));
+            Log.d("선의 개수", String.valueOf(cropline_y[2]));
+            Log.d("선의 개수", String.valueOf(cropline_y[3]));
 
 
             //인식되는 선이 있으면 자른다
             if(line_num!=0) {
                 //자른다
-                for (int i = 0; i < (line_num + 1); i++) {
+                for (int i = 0; i < (line_num+1 ); i++) {
 
                     if (i == 0) {
                         cur_h = (int) cropline_y[0];
                         if(cur_h <=0) continue;
+                        //    if(cur_h-0<400) continue;
                         bitmap_crop_result.add( Bitmap.createBitmap(bitmap, 0, 0, orgW - 1, cur_h));
                     } else if (i < line_num) {
                         cur_h = (int) cropline_y[i - 1] - (int) cropline_y[i];
                         if(cur_h <=0) continue;
+                        //   if(cur_h-(int) cropline_y[i - 1]<400) continue;
                         bitmap_crop_result.add( Bitmap.createBitmap(bitmap, 0, (int) cropline_y[i - 1], orgW - 1, cur_h));
                     } else if (i == line_num) {
                         cur_h = orgH - (int) cropline_y[i - 1] - 1;
                         if(cur_h <=0) continue;
+                        //   if(cur_h-(int) cropline_y[i - 1]<400) continue;
                         bitmap_crop_result.add( Bitmap.createBitmap(bitmap, 0, (int) cropline_y[i - 1], orgW - 1, cur_h));
                     }
 
@@ -350,6 +475,7 @@ private Mat gray;
             Log.d("bitmapNull","!!!!");
         }
 
+        // bitmap_crop_result
         return bitmap_crop_result;
     }
 
@@ -367,7 +493,9 @@ private Mat gray;
                 e.printStackTrace();
             }
             bitmap_crop_result = imgCrop(bitmap);  //비트맵을 그냥 리스트에 넣지 않고 잘라서 넣음
-            img_list.addAll(bitmap_crop_result);   //잘린 비트맵 리스트를 img_list에 추가
+            for(Bitmap bitmap_crop : bitmap_crop_result) {
+                main_list.add(Pair.create(bitmap_crop, "이미지 인식 중 입니다."));   //잘린 비트맵 리스트를 img_list에 추가
+            }
         }
     }
 
@@ -380,11 +508,11 @@ private Mat gray;
                 // scale the image to save on bandwidth no
                 String url1 = "https://www.11st.co.kr/products/"+code+"/view-desc";
                 String url2 = "https://www.11st.co.kr/products/"+code+"?method=getSellerProductSmartOtionDetailViewDesc&finalDscPrc=9011";
-                Crolling crol1 = new Crolling(url1);
-                Crolling crol2 = new Crolling(url2);
+                Crawling crawl1 = new Crawling(url1);
+                Crawling crawl2 = new Crawling(url2);
                 try {
-                    img_url_list.addAll(crol1.execute().get());
-                    img_url_list.addAll(crol2.execute().get());
+                    img_url_list.addAll(crawl1.execute().get());
+                    img_url_list.addAll(crawl2.execute().get());
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -448,7 +576,7 @@ private Mat gray;
             // add the features we want
             annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
                 Feature labelDetection = new Feature();
-                labelDetection.setType("TEXT_DETECTION");
+                labelDetection.setType("DOCUMENT_TEXT_DETECTION");
                 labelDetection.setMaxResults(10);
                 add(labelDetection);
             }});
@@ -466,53 +594,81 @@ private Mat gray;
         return annotateRequest;
     }
 
-    private static class LableDetectionTask extends AsyncTask<Object, Void, String> {
+    private class LableDetectionTask extends AsyncTask<Object, Pair<Integer,String>, String> {
         private final WeakReference<MainActivity> mActivityWeakReference;
-        private Vision.Images.Annotate mRequest;
+        private ArrayList<Pair<Bitmap,String>> mList;
+        private Future<String> future;
+        private final ExecutorService executor = Executors.newCachedThreadPool(Executors.defaultThreadFactory());
+        int num = 0;
 
-        LableDetectionTask(MainActivity activity, Vision.Images.Annotate annotate) {
+        LableDetectionTask(MainActivity activity, ArrayList<Pair<Bitmap,String>> list) {
             mActivityWeakReference = new WeakReference<>(activity);
-            mRequest = annotate;
+            mList = list;
+
+
         }
+
 
         @Override
         protected String doInBackground(Object... params) {
             try {
                 Log.d(TAG, "created Cloud Vision request object, sending request");
-                BatchAnnotateImagesResponse response = mRequest.execute();
-                return convertResponseToString(response);
+                for(int i=0; i < mList.size();i++){
+                    if(mList.get(num).first != null) {
+                        future = executor.submit(new Callable<String>() {
+                            @Override
+                            public String call() throws Exception {
+                                BatchAnnotateImagesResponse response = null;
+                                try {
+                                    response = prepareAnnotationRequest(mList.get(num).first).execute();
+                                    Log.d(TAG, "Future : " + num);
+                                }catch (GoogleJsonResponseException e) {
+                                    Log.d(TAG, "failed to make API request because " + e.getContent());
+                                } catch (IOException e) {
+                                    Log.d(TAG, "failed to make API request because of other IOException " +
+                                            e.getMessage());
+                                }
+                                return convertResponseToString(response);
+                            }
+                        } );
+                        String result = future.get();
+                        publishProgress(Pair.create(num, result));
+                    }
+                    Thread.sleep(100);
+                    num++;
 
-            } catch (GoogleJsonResponseException e) {
-                Log.d(TAG, "failed to make API request because " + e.getContent());
-            } catch (IOException e) {
-                Log.d(TAG, "failed to make API request because of other IOException " +
-                        e.getMessage());
+                }
+                return "Complete";
+            } catch (InterruptedException e){
+                future.cancel(true);
+                Log.d(TAG, "interrupt" );
+            }catch (ExecutionException e){
+                e.printStackTrace();
             }
-            return "Cloud Vision API request failed. Check logs for details.";
+            return "cancle";
         }
 
-        protected void onPostExecute(String result) {
+        @Override
+        protected void onProgressUpdate(Pair<Integer, String>... result) {
+            super.onProgressUpdate(result);
+            Log.d(TAG, "progressUpdate");
             MainActivity activity = mActivityWeakReference.get();
+            String detail = result[0].second;
+            int num = result[0].first;
             if (activity != null && !activity.isFinishing()) {
-                TextView imageDetail = activity.findViewById(R.id.image_details);
-                imageDetail.setText(result);
+                ListView imageDetail = activity.findViewById(R.id.main_listview);
+                activity.main_list.set(num, Pair.create(main_list.get(num).first, detail));
+                activity.mImgAdapter.setSample(activity.main_list);
+                mImgAdapter.notifyDataSetChanged();
             }
         }
-    }
 
-    private void callCloudVision(final Bitmap bitmap) {
-        // Switch text to loading
-        mImageDetails.setText(R.string.loading_message);
+        @Override
+        protected void onPostExecute(String result) {
 
-        // Do the real work in an async task, because we need to use the network anyway
-        try {
-            AsyncTask<Object, Void, String> labelDetectionTask = new LableDetectionTask(this, prepareAnnotationRequest(bitmap));
-            labelDetectionTask.execute();
-        } catch (IOException e) {
-            Log.d(TAG, "failed to make API request because of other IOException " +
-                    e.getMessage());
         }
     }
+
 
     private Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
 
@@ -563,7 +719,7 @@ private Mat gray;
             double center;
 
             for (EntityAnnotation label : labels) {
-
+/*
                 //블록의 경계상자 정보를 가져온다
                 block = label.getBoundingPoly();
                 y1=(block.getVertices().get(0).getY());
@@ -652,6 +808,9 @@ private Mat gray;
                 Log.d("블록",label.getDescription()+" y축 중심:"+ center+" x축:"+x1+" 크기:"+height);
                 //블록 인덱스 업데이트
                 i++;
+
+ */
+                message.append(label.getDescription());
             }
         }
 
@@ -669,11 +828,11 @@ private Mat gray;
     }
 
 
-    public class Crolling extends AsyncTask<Bitmap, Void, List<String>> {
+    public class Crawling extends AsyncTask<Bitmap, Void, List<String>> {
 
         private String url;
 
-        public Crolling(String url) {
+        public Crawling(String url) {
 
             this.url = url;
         }
