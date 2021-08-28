@@ -100,8 +100,9 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> img_url_list;
 
     private  AsyncTask<Object, Pair<Integer,String>, String> labelDetectionTask;
-
-
+    private loadImageTask imageTask;
+    private Thread imageThread;
+    boolean complete;
 
 //추가
 //    public native Bitmap[] imgCrop(Bitmap bitmap);
@@ -172,24 +173,27 @@ private Mat gray;
     protected void onResume() {
         super.onResume();
         Handler handler = new Handler();
+
         new Thread(()->{
             getImageList();
-            if(!main_list.isEmpty()) {
-                handler.post(() -> {
-                    mImgAdapter.setSample(main_list);
-                    mImgAdapter.notifyDataSetChanged();
-                    labelDetectionTask = new LableDetectionTask(this, main_list);
-                    labelDetectionTask.execute();
+            if(complete) {
+                if (!main_list.isEmpty()) {
+                    handler.post(() -> {
+                        mImgAdapter.setSample(main_list);
+                        mImgAdapter.notifyDataSetChanged();
+                        labelDetectionTask = new LableDetectionTask(this, main_list);
+                        labelDetectionTask.execute();
 
-                });
+                    });
+                } else {
+                    main_list.add(Pair.create(null, "이미지 로드 실패"));
+                    handler.post(() -> {
+                        mImgAdapter.setSample(main_list);
+                        mImgAdapter.notifyDataSetChanged();
+                    });
+                }
             }
-            else{
-                main_list.add(Pair.create(null,"이미지 로드 실패"));
-                handler.post(()->{
-                    mImgAdapter.setSample(main_list);
-                    mImgAdapter.notifyDataSetChanged();
-                });
-            }
+
         }).start();
 
     }
@@ -197,9 +201,13 @@ private Mat gray;
     @Override
     protected void onPause() {
         super.onPause();
-        if(labelDetectionTask.getStatus() == AsyncTask.Status.RUNNING){
-            labelDetectionTask.cancel(true);
+        if(labelDetectionTask != null) {
+            if (labelDetectionTask.getStatus() == AsyncTask.Status.RUNNING) {
+                labelDetectionTask.cancel(true);
+            }
         }
+        if(imageThread != null)
+            imageThread.interrupt();
     }
     /*
     public void startGalleryChooser() {
@@ -481,23 +489,42 @@ private Mat gray;
     }
 
     //비트맵 리스트를 만드는 함수. 멤버변수중 img_list를 채움
-    public void getImageList(){
-        Bitmap bitmap = null;
-        List<Bitmap> bitmap_crop_result;
-        for(String img_url : img_url_list){  //모든 url에 대해서 반복
-            loadImageTask imageTask = new loadImageTask(img_url);
+    public boolean getImageList()  {
+        complete = true;
+        imageThread = new Thread(()->{
+            Bitmap bitmap = null;
+            List<Bitmap> bitmap_crop_result;
             try {
-                bitmap = imageTask.execute().get();
+                for(String img_url : img_url_list){  //모든 url에 대해서 반복
+                    imageTask = new loadImageTask(img_url);
+                    bitmap = imageTask.execute().get();
+                    Thread.sleep(100);
+                    if(!complete) break;
+                    bitmap_crop_result = imgCrop(bitmap);  //비트맵을 그냥 리스트에 넣지 않고 잘라서 넣음
+                    for(Bitmap bitmap_crop : bitmap_crop_result) {
+                        main_list.add(Pair.create(bitmap_crop, "이미지 인식 중 입니다."));   //잘린 비트맵 리스트를 img_list에 추가
+                    }
+                    Thread.sleep(100);
+                    if(!complete) break;
+                }
             } catch (ExecutionException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
+                Log.d(TAG, "Imagetask interrupt" );
                 e.printStackTrace();
+                complete = false;
             }
-            bitmap_crop_result = imgCrop(bitmap);  //비트맵을 그냥 리스트에 넣지 않고 잘라서 넣음
-            for(Bitmap bitmap_crop : bitmap_crop_result) {
-                main_list.add(Pair.create(bitmap_crop, "이미지 인식 중 입니다."));   //잘린 비트맵 리스트를 img_list에 추가
-            }
+        });
+       imageThread.start();
+
+        try {
+            imageThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
+
+        return complete;
     }
 
     //상세이미지 url 리스트를 구하는 메소드. 멤버변수 img_url_list를 채움
@@ -643,6 +670,7 @@ private Mat gray;
             } catch (InterruptedException e){
                 future.cancel(true);
                 Log.d(TAG, "interrupt" );
+                return "cancle";
             }catch (ExecutionException e){
                 e.printStackTrace();
             }
