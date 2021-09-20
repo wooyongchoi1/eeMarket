@@ -1,5 +1,6 @@
 -- Merging decision tree log ---
 manifest
+<<<<<<< HEAD
 ADDED from C:\GraduationDesign_android_git\sdk\java\AndroidManifest.xml:2:1-4:12
 INJECTED from C:\GraduationDesign_android_git\sdk\java\AndroidManifest.xml:2:1-4:12
 INJECTED from C:\GraduationDesign_android_git\sdk\java\AndroidManifest.xml:2:1-4:12
@@ -23,3 +24,28 @@ INJECTED from C:\GraduationDesign_android_git\sdk\java\AndroidManifest.xml
 		INJECTED from C:\GraduationDesign_android_git\sdk\java\AndroidManifest.xml
 		ADDED from C:\GraduationDesign_android_git\sdk\java\AndroidManifest.xml
 		INJECTED from C:\GraduationDesign_android_git\sdk\java\AndroidManifest.xml
+=======
+ADDED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml:2:1-4:12
+INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml:2:1-4:12
+INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml:2:1-4:12
+	package
+		ADDED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml:3:7-27
+		INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+		INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml:2:11-69
+uses-sdk
+INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+		ADDED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+		INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+		ADDED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+		INJECTED from C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\java\AndroidManifest.xml
+>>>>>>> bc4a85a73c021931a501b512568ec23d0d57d94e
