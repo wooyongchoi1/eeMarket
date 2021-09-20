@@ -5,6 +5,7 @@ public class ProductInfo {
     private String name;
     private String price;
     private String image;
+    private String site;
 
     public String getCode() {
         return code;

@@ -29,12 +29,8 @@ public class PayActivity extends AppCompatActivity {
         Boolean jsonResponse = null;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pay_start);
-        Intent intent = getIntent();
-        String userID = intent.getExtras().getString("userID");
-        String name = intent.getExtras().getString("name");
-        String price = intent.getExtras().getString("price");
-        String code = intent.getExtras().getString("code");
-        String image = intent.getExtras().getString("image");
+        String userID = getIntent().getExtras().getString("userID");
+        ProductInfo productInfo = new MarketIntent(getIntent()).getProductInfo();
         // Spinner
         Spinner numSpinner = (Spinner) findViewById(R.id.spinner_num);
         // 장바구니
@@ -88,7 +84,7 @@ public class PayActivity extends AppCompatActivity {
 
                     }
                 };
-                PayRequest payRequest = new PayRequest(userID, name, price, num, code, image, responseListener);
+                PayRequest payRequest = new PayRequest(userID, productInfo.getName(), productInfo.getPrice(), num, productInfo.getCode(), productInfo.getImage(), responseListener);
                 RequestQueue queue = Volley.newRequestQueue(PayActivity.this);
                 queue.add(payRequest);
 
@@ -103,7 +99,7 @@ public class PayActivity extends AppCompatActivity {
                 //결제 합계 계산
                 int mid = Integer.parseInt(numSpinner.getSelectedItem().toString());
                 //상품 가격 가져옴
-                mid = mid * Integer.parseInt(price);
+                mid = mid * Integer.parseInt(productInfo.getPrice());
 
                 APointText.setText(String.valueOf(mid));
             }
