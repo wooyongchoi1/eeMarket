@@ -51,18 +51,14 @@ public class SearchList extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView parent, View v, int position, long id){
-                Intent intent = new Intent(SearchList.this, MainActivity.class);
-                intent.putExtra("code", list.get(position).getCode());
-                intent.putExtra("name", list.get(position).getName());
-                intent.putExtra("price", list.get(position).getPrice());
-                intent.putExtra("image", list.get(position).getImage());
-                intent.putExtra("userID", userID);
+                MarketIntent mintent = new MarketIntent(SearchList.this, MainActivity.class);
+                mintent.putExtra("product", list.get(position));
 
                 /*Log.d("name(TEST):",list.get(position).getName());
                 Log.d("price(TEST):",list.get(position).getPrice());
                 Log.d("code(TEST):",list.get(position).getCode());
                 Log.d("image(TEST):",list.get(position).getImage());*/
-                startActivity(intent);
+                startActivity(mintent);
             }
         });
     }

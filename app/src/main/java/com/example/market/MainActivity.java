@@ -140,12 +140,8 @@ private Mat gray;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Intent intent = getIntent();
-        String userID = intent.getExtras().getString("userID");
-        String code = intent.getExtras().getString("code");
-        String name = intent.getExtras().getString("name");
-        String price = intent.getExtras().getString("price");
-        String image = intent.getExtras().getString("image");
+        String userID = getIntent().getExtras().getString("userID");
+        ProductInfo productInfo = new MarketIntent(getIntent()).getProductInfo();
 
 
         //int result = test(5);
@@ -180,14 +176,11 @@ private Mat gray;
         payoptionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, PayActivity.class);
-                intent.putExtra("userID", userID);
-                intent.putExtra("code", code);
-                intent.putExtra("name", name);
-                intent.putExtra("price", price);
-                intent.putExtra("image", image);
+                MarketIntent mintent = new MarketIntent(MainActivity.this, PayActivity.class);
+                mintent.putExtra("userID", userID);
+                mintent.putExtra("product", productInfo);
 
-                startActivity(intent);
+                startActivity(mintent);
             }
         });
 
