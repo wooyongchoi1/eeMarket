@@ -52,6 +52,7 @@ public class SearchList extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView parent, View v, int position, long id){
                 MarketIntent mintent = new MarketIntent(SearchList.this, MainActivity.class);
+                mintent.putExtra("userID", userID);
                 mintent.putExtra("product", list.get(position));
 
                 /*Log.d("name(TEST):",list.get(position).getName());

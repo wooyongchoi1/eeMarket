@@ -37,6 +37,8 @@ public class PayActivity extends AppCompatActivity {
         Button saveBtn = (Button)findViewById(R.id.saveButton);
         //전체 결제 포인트
         TextView APointText = (TextView)findViewById(R.id.Ptext2);
+        //바로 구매
+        Button purchase = (Button)findViewById(R.id.payButton);
 
         // spinner
         ArrayAdapter adapter = new ArrayAdapter(getBaseContext(),android.R.layout.simple_spinner_item,items);
@@ -105,6 +107,16 @@ public class PayActivity extends AppCompatActivity {
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        //바로 구매 버튼 누르면, 장바구니로 들어가기
+        purchase.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(PayActivity.this, BasketActivity.class);
+                startActivity(intent);
+
             }
         });
 

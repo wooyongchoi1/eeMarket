@@ -24,6 +24,7 @@ public class RegisterActivity extends AppCompatActivity {
     private String userID;
     private String userPassword;
     private String userEmail;
+    private String userPoint="0";
     private AlertDialog dialog;
     private boolean validate = false; //사용할 수 있는 회원ID인지 check
 
@@ -88,6 +89,9 @@ public class RegisterActivity extends AppCompatActivity {
 
                     }
                 };
+                ValidateRequest validateRequest = new ValidateRequest(userID, responseListener);
+                RequestQueue queue = Volley.newRequestQueue(RegisterActivity.this);
+                queue.add(validateRequest);
             }
         });
         Button registerButton = (Button)findViewById(R.id.registerButton);
@@ -147,7 +151,7 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 };
                 //ValidateRequest validateRequest = new ValidateRequest(userID, responseListener);
-                RegisterRequest registerRequest = new RegisterRequest(userID, userPassword, userEmail, responseListener);
+                RegisterRequest registerRequest = new RegisterRequest(userID, userPassword, userEmail, userPoint, responseListener);
                 RequestQueue queue = Volley.newRequestQueue(RegisterActivity.this);
                 queue.add(registerRequest);
             }

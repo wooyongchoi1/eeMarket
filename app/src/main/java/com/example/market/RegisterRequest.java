@@ -10,8 +10,8 @@ public class RegisterRequest extends StringRequest {
     private Map<String , String> parameters;
 
 
-    public RegisterRequest(String userID, String userPassword, String userEmail, Response.Listener<String> listener) {
-        super(Method.POST, URL+"userID="+userID+"&userPassword="+userPassword+"&userEmail="+userEmail, listener, null);
+    public RegisterRequest(String userID, String userPassword, String userEmail,String userPoint, Response.Listener<String> listener) {
+        super(Method.POST, URL+"userID="+userID+"&userPassword="+userPassword+"&userEmail="+userEmail+"&userPoint="+userPoint, listener, null);
 
     }
     @Override
