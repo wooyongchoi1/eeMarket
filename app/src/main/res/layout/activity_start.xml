@@ -40,7 +40,7 @@
                 app:iconTint="#00BCD4" />
 
             <Button
-                android:id="@+id/button4"
+                android:id="@+id/PointButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

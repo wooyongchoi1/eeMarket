@@ -20,6 +20,7 @@ public class StartActivity extends AppCompatActivity {
         Button searchBtn = findViewById(R.id.searchButton);
         Button questionBtn = findViewById(R.id.QuestionButton);
         Button BasketBtn = findViewById(R.id.BasketButton);
+        Button PointBtn = findViewById(R.id.PointButton);
 
         // 상품 검색
         searchBtn.setOnClickListener(new View.OnClickListener() {
@@ -46,6 +47,16 @@ public class StartActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(StartActivity.this, BasketActivity.class);
+                intent.putExtra("userID", userID);
+                startActivity(intent);
+            }
+        });
+
+        //포인트 충전
+        PointBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(StartActivity.this, PointActivity.class);
                 intent.putExtra("userID", userID);
                 startActivity(intent);
             }

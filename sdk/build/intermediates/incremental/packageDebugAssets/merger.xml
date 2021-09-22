@@ -1,6 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<<<<<<< HEAD
 <merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\GraduationDesign_android_git\sdk\src\main\assets"/><source path="C:\GraduationDesign_android_git\sdk\build\intermediates\shader_assets\debug\out"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\GraduationDesign_android_git\sdk\src\debug\assets"/></dataSet></merger>
-=======
-<merger version="3"><dataSet config="main" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\src\main\assets"/><source path="C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\build\intermediates\shader_assets\debug\out"/></dataSet><dataSet config="debug" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="C:\Users\hmm62\AndroidStudioProjects\ee-market_ver2\sdk\src\debug\assets"/></dataSet></merger>
->>>>>>> bc4a85a73c021931a501b512568ec23d0d57d94e
