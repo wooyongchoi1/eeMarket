@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/drawable/gradient.xml" value="0.17314814814814813" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/drawable/ic_baseline_attach_email_24.xml" value="0.15" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/drawable/ic_baseline_email_24.xml" value="0.15" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/drawable/ic_baseline_https_24.xml" value="0.15" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/drawable/ic_baseline_person_24.xml" value="0.15" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/drawable/ic_launcher_background.xml" value="0.15" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.15" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/drawable/loginui.xml" value="0.1361111111111111" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/font/font.xml" value="0.12447916666666667" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/activity_basket.xml" value="0.264" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/activity_loading.xml" value="0.21197916666666666" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/activity_login.xml" value="0.2" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/activity_point.xml" value="0.264" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/activity_register.xml" value="0.24947916666666667" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/activity_search.xml" value="0.1828125" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/activity_searchlist.xml" value="0.2" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/activity_start.xml" value="0.2" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/listview_basketcustom.xml" value="0.4" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/listview_custom.xml" value="0.245018115942029" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/listview_img.xml" value="0.1859375" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/pay_start.xml" value="0.24947916666666667" />
+        <entry key="..\:/Users/hmm62/AndroidStudioProjects/ee-market_ver2/app/src/main/res/layout/question_.xml" value="0.24947916666666667" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

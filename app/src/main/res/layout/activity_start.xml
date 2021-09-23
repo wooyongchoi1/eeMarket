@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.7"
+            android:gravity="center"
+            android:text="마켓메이트"
+            android:fontFamily="@font/flower"
+            android:background="#C1C5FC"
+            android:textColor="#ffffff"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/searchButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#6A74CF"
+                android:text="검색하기"
+                android:textColor="#6A74CF"
+                app:backgroundTint="#FBFBFB"
+                app:icon="@drawable/search"
+                app:iconGravity="textTop"
+                app:iconTint="#6A74CF" />
+
+            <Button
+                android:id="@+id/PointButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#00FFFFFF"
+                android:text="포인트 충전"
+                android:textColor="#6A74CF"
+                app:backgroundTint="#6A74CF"
+                app:icon="@drawable/category"
+                app:iconGravity="textTop"
+                app:iconTint="#6A74CF" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/BasketButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#00FFFFFF"
+                android:text="장바구니"
+                android:textColor="#6A74CF"
+                app:backgroundTint="#6A74CF"
+                app:icon="@drawable/basket"
+                app:iconGravity="textTop"
+                app:iconTint="#6A74CF" />
+
+            <Button
+                android:id="@+id/QuestionButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#00FFFFFF"
+                android:text="문의"
+                android:textColor="#6A74CF"
+                app:backgroundTint="#6A74CF"
+                app:icon="@drawable/question"
+                app:iconGravity="textTop"
+                app:iconPadding="0dp"
+                app:iconTint="#6A74CF" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
