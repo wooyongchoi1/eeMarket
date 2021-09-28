@@ -24,6 +24,9 @@ public class PointActivity extends AppCompatActivity {
 
     int mid = 0;
     String userpoint = null;
+    String userID;
+    Handler mHandler = new Handler();
+    TextView APoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +38,9 @@ public class PointActivity extends AppCompatActivity {
         Button PCBtn3 = findViewById(R.id.PointChargeButton3);
         Button PCBtn4 = findViewById(R.id.PointChargeButton4);
         Button PCBtn5 = findViewById(R.id.PointChargeButton5);
-        TextView APoint = (TextView) findViewById(R.id.AllPoint);
+        APoint = (TextView) findViewById(R.id.AllPoint);
 
-        String userID = getIntent().getExtras().getString("userID");
+        userID = getIntent().getExtras().getString("userID");
 
         // 포인트 가져오기
         Response.Listener<String> responseListener2 = new Response.Listener<String>() {
@@ -69,254 +72,66 @@ public class PointActivity extends AppCompatActivity {
         queue.add(getPRequest);
 
 
-        Handler mHandler = new Handler();
         mHandler.postDelayed(new Runnable() { public void run() {
             APoint.setText(userpoint);
         } }, 1000);
 
 
         //1000 버튼 클릭시 실행(모든 버튼은 코드구조가 동일함)
-        PCBtn1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        PCBtn1.setOnClickListener((v)-> {
+            Intent intent = new Intent(this, CheckPasswordActivity.class);
+            intent.putExtra("userID", userID);
+            startActivityForResult(intent, 0);
 
-                mHandler.postDelayed(new Runnable() {
-
-                    public void run() {
-                        mid = Integer.parseInt(userpoint);
-                        mid = mid + 1000;
-
-                        userpoint = String.valueOf(mid);
-
-                        Response.Listener<String> responseListener1 = new Response.Listener<String>() {
-
-                            @Override
-                            public void onResponse(String response) {
-
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response);
-                                    boolean success = (Boolean) jsonObject.get("success");
-
-                                    if (success) {
-                                        Toast.makeText(getApplicationContext(), "포인트 충전 완료 " + userpoint + " 포인트", Toast.LENGTH_SHORT).show();
-                                    }else{
-                                        Toast.makeText(getApplicationContext(), "포인트 업데이트 실패", Toast.LENGTH_SHORT).show();
-                                    }
-
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        };
-
-
-                        UpdatePointRequest upPRequest = new UpdatePointRequest(userID, userpoint, responseListener1);
-                        queue.add(upPRequest);
-                    }
-                }, 1000);
-
-                mHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        GetPointRequest getPRequest = new GetPointRequest(userID, responseListener2);
-                        queue.add(getPRequest);
-                    }
-                }, 2000);
-
-                mHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        APoint.setText(userpoint);
-                    }
-                }, 3000);
-
-            }
         });
 
+
         //5000 버튼 클릭시 실행
-        PCBtn2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                mHandler.postDelayed(new Runnable() {
-
-                    public void run() {
-                        mid = Integer.parseInt(userpoint);
-                        mid = mid + 5000;
-
-                        userpoint = String.valueOf(mid);
-
-                        Response.Listener<String> responseListener1 = new Response.Listener<String>() {
-
-                            @Override
-                            public void onResponse(String response) {
-
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response);
-                                    boolean success = (Boolean) jsonObject.get("success");
-
-                                    if (success) {
-                                        Toast.makeText(getApplicationContext(), "포인트 충전 완료 " + userpoint + " 포인트", Toast.LENGTH_SHORT).show();
-                                    }else{
-                                        Toast.makeText(getApplicationContext(), "포인트 업데이트 실패", Toast.LENGTH_SHORT).show();
-                                    }
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        };
-
-
-                        UpdatePointRequest upPRequest = new UpdatePointRequest(userID, userpoint, responseListener1);
-                        queue.add(upPRequest);
-                    }
-                }, 1000);
-
-                mHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        GetPointRequest getPRequest = new GetPointRequest(userID, responseListener2);
-                        queue.add(getPRequest);
-                    }
-                }, 2000);
-
-                mHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        APoint.setText(userpoint);
-                    }
-                }, 3000);
-
-
-
-            }
+        PCBtn2.setOnClickListener((v)-> {
+            Intent intent = new Intent(this, CheckPasswordActivity.class);
+            intent.putExtra("userID", userID);
+            startActivityForResult(intent, 1);
         });
 
         //10000
-        PCBtn3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                mHandler.postDelayed(new Runnable() {
-
-                    public void run() {
-                        mid = Integer.parseInt(userpoint);
-                        mid = mid + 10000;
-
-                        userpoint = String.valueOf(mid);
-
-                        Response.Listener<String> responseListener1 = new Response.Listener<String>() {
-
-                            @Override
-                            public void onResponse(String response) {
-
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response);
-                                    boolean success = (Boolean) jsonObject.get("success");
-
-                                    if (success) {
-                                        Toast.makeText(getApplicationContext(), "포인트 충전 완료 " + userpoint + " 포인트", Toast.LENGTH_SHORT).show();
-                                    }else{
-                                        Toast.makeText(getApplicationContext(), "포인트 업데이트 실패", Toast.LENGTH_SHORT).show();
-                                    }
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        };
-
-                        UpdatePointRequest upPRequest = new UpdatePointRequest(userID, userpoint, responseListener1);
-                        queue.add(upPRequest);
-                    }
-                }, 1000);
-
-                mHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        GetPointRequest getPRequest = new GetPointRequest(userID, responseListener2);
-                        queue.add(getPRequest);
-                    }
-                }, 2000);
-
-                mHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        APoint.setText(userpoint);
-                    }
-                }, 3000);
-
-
-            }
+        PCBtn3.setOnClickListener((v)-> {
+            Intent intent = new Intent(this, CheckPasswordActivity.class);
+            intent.putExtra("userID", userID);
+            startActivityForResult(intent, 2);
         });
         //50000
-        PCBtn4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                mHandler.postDelayed(new Runnable() {
-
-                    public void run() {
-                        mid = Integer.parseInt(userpoint);
-                        mid = mid + 50000;
-
-                        userpoint = String.valueOf(mid);
-
-                        Response.Listener<String> responseListener1 = new Response.Listener<String>() {
-
-                            @Override
-                            public void onResponse(String response) {
-
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response);
-                                    boolean success = (Boolean) jsonObject.get("success");
-
-                                    if (success) {
-                                        Toast.makeText(getApplicationContext(), "포인트 충전 완료 " + userpoint + " 포인트", Toast.LENGTH_SHORT).show();
-                                    }else{
-                                        Toast.makeText(getApplicationContext(), "포인트 업데이트 실패", Toast.LENGTH_SHORT).show();
-                                    }
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        };
-
-                        UpdatePointRequest upPRequest = new UpdatePointRequest(userID, userpoint, responseListener1);
-                        queue.add(upPRequest);
-                    }
-                }, 1000);
-
-                mHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        GetPointRequest getPRequest = new GetPointRequest(userID, responseListener2);
-                        queue.add(getPRequest);
-                    }
-                }, 2000);
-
-                mHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        APoint.setText(userpoint);
-                    }
-                }, 3000);
-
-
-            }
+        PCBtn4.setOnClickListener(v-> {
+            Intent intent = new Intent(this, CheckPasswordActivity.class);
+            intent.putExtra("userID", userID);
+            startActivityForResult(intent, 3);
         });
 
         //100000
-        PCBtn5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        PCBtn5.setOnClickListener(v-> {
+            Intent intent = new Intent(this, CheckPasswordActivity.class);
+            intent.putExtra("userID", userID);
+            startActivityForResult(intent, 4);
+        });
 
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            if(data.getExtras().getBoolean("check")){
+                mid = Integer.parseInt(userpoint);
+                if(requestCode == 0){ mid = mid + 1000;
+                } else if(requestCode == 1){mid = mid + 5000;
+                }else if(requestCode == 2){mid = mid + 10000;
+                }else if(requestCode == 3){mid = mid + 50000;
+                }else if(requestCode == 4){mid = mid + 100000;
+                }
+
+                userpoint = String.valueOf(mid);
                 mHandler.postDelayed(new Runnable() {
 
                     public void run() {
-                        mid = Integer.parseInt(userpoint);
-                        mid = mid + 100000;
 
-                        userpoint = String.valueOf(mid);
 
                         Response.Listener<String> responseListener1 = new Response.Listener<String>() {
 
@@ -342,13 +157,38 @@ public class PointActivity extends AppCompatActivity {
 
 
                         UpdatePointRequest upPRequest = new UpdatePointRequest(userID, userpoint, responseListener1);
+                        RequestQueue queue = Volley.newRequestQueue(PointActivity.this);
                         queue.add(upPRequest);
                     }
                 }, 1000);
 
                 mHandler.postDelayed(new Runnable() {
                     public void run() {
+                        Response.Listener<String> responseListener2 = new Response.Listener<String>() {
+
+                            @Override
+                            public void onResponse(String response) {
+
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
+                                    boolean success = (Boolean) jsonObject.get("success");
+                                    userpoint = (String) jsonObject.get("userPoint");
+
+                                    if (success) {
+                                        Log.d("userpoint", userpoint);
+//                        Toast.makeText(getApplicationContext(), "가져오기 성공" + userpoint, Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "포인트 가져오기 실패", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        };
                         GetPointRequest getPRequest = new GetPointRequest(userID, responseListener2);
+                        RequestQueue queue = Volley.newRequestQueue(PointActivity.this);
                         queue.add(getPRequest);
                     }
                 }, 2000);
@@ -360,7 +200,7 @@ public class PointActivity extends AppCompatActivity {
                 }, 3000);
 
             }
-        });
+        }
 
     }
 

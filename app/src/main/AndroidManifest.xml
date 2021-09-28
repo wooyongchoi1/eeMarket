@@ -37,6 +37,8 @@
         <activity android:name=".PayActivity"></activity>
         <activity android:name=".BasketActivity"></activity>
         <activity android:name=".PointActivity"></activity>
+        <activity android:name=".CheckPasswordActivity"></activity>
+        <activity android:name=".ProductActivity"></activity>
     </application>
 
 </manifest>

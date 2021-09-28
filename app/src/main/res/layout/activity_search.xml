@@ -8,26 +8,31 @@
 
     <EditText
         android:id="@+id/editText_search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="258dp"
+        android:layout_height="73dp"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
         android:fontFamily="@font/ssantregular"
+        android:hint="검색할 상품을 입력하세요"
+        android:inputType="textPersonName"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.298"
+        app:layout_constraintHorizontal_bias="0.235"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.498" />
+        app:layout_constraintVertical_bias="0.449" />
 
     <Button
         android:id="@+id/buttonstt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="음성인식"
-        app:backgroundTint="#6A74CF"
+        android:layout_width="364dp"
+        android:layout_height="243dp"
+        android:text="음성으로 검색"
+        android:textSize="20sp"
 
+        app:backgroundTint="#6A74CF"
+        app:cornerRadius="30dp"
+        app:icon="@drawable/stt"
+        app:iconGravity="textTop"
+        app:iconSize="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,15 +40,33 @@
 
     <Button
         android:id="@+id/searchKeyword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="89dp"
+        android:layout_height="59dp"
         android:text="검색"
-        app:backgroundTint="#6A74CF"
+        android:textSize="20sp"
 
+        app:backgroundTint="#6A74CF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.395"
+        app:layout_constraintHorizontal_bias="0.448"
         app:layout_constraintStart_toEndOf="@+id/editText_search"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.499" />
+        app:layout_constraintVertical_bias="0.453" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="305dp"
+        android:layout_height="153dp"
+        android:fontFamily="@font/flower"
+        android:gravity="center"
+        android:text="마켓메이트"
+        android:textColor="#6A74CF"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/editText_search"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.487" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 #opencv library
-OPENCVROOT:= C:\GraduationDesign_android\eeMarket-opencv_ver11\eeMarket-opencv_ver11\sdk
+OPENCVROOT:= C:\Users\dndyd\AndroidStudioProjects\MMarketMate\sdk
 OPENCV_CAMERA_MODULES:=on
 OPENCV_INSTALL_MODULES:=on
 OPENCV_LIB_TYPE:=SHARED

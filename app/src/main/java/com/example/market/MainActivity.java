@@ -21,6 +21,7 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -92,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSIONS_REQUEST = 2;
     public static final int CAMERA_IMAGE_REQUEST = 3;
 
-
+    private MainActivitySub[] subLayout;
+    LinearLayout mainLayout;
     private ListView mainListView;
     private ImgAdapter mImgAdapter;
     private ArrayList<Pair<Bitmap,String>> main_list;
@@ -151,7 +153,7 @@ private Mat gray;
         img_url_list = new ArrayList<>();
         mainListView = findViewById(R.id.main_listview);
         mImgAdapter = new ImgAdapter(this,main_list);
-        Button payoptionBtn = findViewById(R.id.payOptionButton);
+        mainLayout = findViewById(R.id.main_layout);
 
         if (!OpenCVLoader.initDebug()) {
             Log.d("OpenCV", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
@@ -168,21 +170,13 @@ private Mat gray;
         }
         else{
             ready_list.add(Pair.create(null,"이미지 준비중입니다."));
+            Toast.makeText(getApplicationContext(), "이미지 준비중입니다.", Toast.LENGTH_SHORT).show();
             mImgAdapter.setSample(ready_list);
             mainListView.setAdapter(mImgAdapter);
         }
 
-        // 구매옵션
-        payoptionBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MarketIntent mintent = new MarketIntent(MainActivity.this, PayActivity.class);
-                mintent.putExtra("userID", userID);
-                mintent.putExtra("product", productInfo);
 
-                startActivity(mintent);
-            }
-        });
+
 
     }
 
@@ -194,10 +188,24 @@ private Mat gray;
         new Thread(()->{
             getImageList();
             if(complete) {
+                handler.post(()->{
+                    ready_list.clear();
+                    mImgAdapter.setSample(ready_list);
+                    mImgAdapter.notifyDataSetChanged();
+                });
                 if (!main_list.isEmpty()) {
                     handler.post(() -> {
-                        mImgAdapter.setSample(main_list);
-                        mImgAdapter.notifyDataSetChanged();
+                        subLayout = new MainActivitySub[main_list.size()];
+                        for(int i=0;i<main_list.size();i++){
+                            subLayout[i] = new MainActivitySub(getApplicationContext());
+                            ImageView imgView = subLayout[i].findViewById(R.id.main_image);
+                            TextView textView = subLayout[i].findViewById(R.id.img_detail);
+                            imgView.setImageBitmap(main_list.get(i).first);
+                            textView.setText(main_list.get(i).second);
+                            mainLayout.addView(subLayout[i]);
+                        }
+
+
                         labelDetectionTask = new LableDetectionTask(this, main_list);
                         labelDetectionTask.execute();
 
@@ -205,8 +213,15 @@ private Mat gray;
                 } else {
                     main_list.add(Pair.create(null, "이미지 로드 실패"));
                     handler.post(() -> {
-                        mImgAdapter.setSample(main_list);
-                        mImgAdapter.notifyDataSetChanged();
+                        subLayout = new MainActivitySub[main_list.size()];
+                        for(int i=0;i<main_list.size();i++){
+                            subLayout[i] = new MainActivitySub(getApplicationContext());
+                            ImageView imgView = subLayout[i].findViewById(R.id.main_image);
+                            TextView textView = subLayout[i].findViewById(R.id.img_detail);
+                            imgView.setImageBitmap(main_list.get(i).first);
+                            textView.setText(main_list.get(i).second);
+                            mainLayout.addView(subLayout[i]);
+                        }
                     });
                 }
             }
@@ -640,10 +655,9 @@ private Mat gray;
             String detail = result[0].second;
             int num = result[0].first;
             if (activity != null && !activity.isFinishing()) {
-                ListView imageDetail = activity.findViewById(R.id.main_listview);
                 activity.main_list.set(num, Pair.create(main_list.get(num).first, detail));
-                activity.mImgAdapter.setSample(activity.main_list);
-                mImgAdapter.notifyDataSetChanged();
+                TextView textView = activity.subLayout[num].findViewById(R.id.img_detail);
+                textView.setText(main_list.get(num).second);
             }
         }
 

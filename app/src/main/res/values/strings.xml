@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Market</string>
+    <string name="app_name">마켓메이트</string>
     <string name="image_picker_error">Something is wrong with that image. Pick a different one please.</string>
     <string name="loading_message">이미지 글자인식중입니다. 잠시 기다려주세요.</string>
     <string name="not_found_detailImage">There is no detail image</string>

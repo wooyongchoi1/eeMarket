@@ -1,5 +1,6 @@
 package com.example.market;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -49,7 +50,10 @@ public class BasketActivity extends AppCompatActivity {
     String AllPrice = "0";
     String mid = "0";
     int mid1 = 0;
-
+    TextView allP;
+    Button AllSelBtn;
+    Button delBtn;
+    Button buyBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,11 +63,11 @@ public class BasketActivity extends AppCompatActivity {
 
 
         //버튼 연결
-        Button AllSelBtn = findViewById(R.id.allSelectBtn);
-        Button delBtn = findViewById(R.id.deleteBtn);
-        Button buyBtn = findViewById(R.id.buyButton);
+        AllSelBtn = findViewById(R.id.allSelectBtn);
+        delBtn = findViewById(R.id.deleteBtn);
+        buyBtn = findViewById(R.id.buyButton);
         //보유 포인트
-        TextView allP = findViewById(R.id.Btext4);
+        allP = findViewById(R.id.Btext4);
 
         //전체 결제 포인트
         //TextView purchase = (TextView)findViewById(R.id.Btext2);
@@ -183,9 +187,7 @@ public class BasketActivity extends AppCompatActivity {
 
 
         //구매 클릭시 실행
-        buyBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        buyBtn.setOnClickListener(v-> {
 
                 //계산
                 mid1 = Integer.parseInt(userpoint);
@@ -194,106 +196,104 @@ public class BasketActivity extends AppCompatActivity {
                 if (mid1 < 0) {
                     Toast.makeText(getApplicationContext(), "결제 실패. 보유 포인트가 부족합니다.", Toast.LENGTH_SHORT).show();
                 } else {
-                    //메시지 출력
-                    Toast.makeText(getApplicationContext(), "결제가 완료되었습니다.", Toast.LENGTH_SHORT).show();
-                    //결제 추가해야함!
-                    // 포인트 차감후 다시 포인트 가져오기
-                    Handler mHandler = new Handler();
-                    mHandler.postDelayed(new Runnable() {
-
-                        public void run() {
-
-                            userpoint = String.valueOf(mid1);
-
-                            Response.Listener<String> responseListener1 = new Response.Listener<String>() {
-
-                                @Override
-                                public void onResponse(String response) {
-
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(response);
-                                        boolean success = (Boolean) jsonObject.get("success");
-
-                                        if (success) {
-                                            Toast.makeText(getApplicationContext(), "포인트 업데이트 완료 " + userpoint + " 포인트", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            Toast.makeText(getApplicationContext(), "포인트 업데이트 실패", Toast.LENGTH_SHORT).show();
-                                        }
-
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                            };
-
-                            UpdatePointRequest upPRequest = new UpdatePointRequest(userID, userpoint, responseListener1);
-                            RequestQueue queue = Volley.newRequestQueue(BasketActivity.this);
-                            queue.add(upPRequest);
-                        }
-                    }, 1000);
-
-                    // 포인트 가져오기
-                    Response.Listener<String> responseListener2 = new Response.Listener<String>() {
-
-                        @Override
-                        public void onResponse(String response) {
-
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                boolean success = (Boolean) jsonObject.get("success");
-                                userpoint = (String) jsonObject.get("userPoint");
-
-                                if (success) {
-                                    Log.d("userpoint", userpoint);
-//                        Toast.makeText(getApplicationContext(), "가져오기 성공" + userpoint, Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(getApplicationContext(), "포인트 가져오기 실패", Toast.LENGTH_SHORT).show();
-                                }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-                    };
-
-                    mHandler.postDelayed(new Runnable() {
-                        public void run() {
-                            GetPointRequest getPRequest = new GetPointRequest(userID, responseListener2);
-                            RequestQueue queue = Volley.newRequestQueue(BasketActivity.this);
-                            queue.add(getPRequest);
-                        }
-                    }, 2000);
-
-                    mHandler.postDelayed(new Runnable() {
-                        public void run() {
-                            allP.setText(userpoint);
-                        }
-                    }, 3000);
-
-
-//                //결제된 리스트 삭제
-//                SparseBooleanArray checkedItems = BlistView.getCheckedItemPositions();
-//                int count = BAdapter.getCount() ;
-//
-//                for (int i = count-1; i >= 0; i--) {
-//                    if (checkedItems.get(i)) {
-//                        BlistAll.remove(i) ;
-//                    }
-//                }
-//
-                    // 모든 선택 상태 초기화.
-                    BlistView.clearChoices();
-
-                    BAdapter.notifyDataSetChanged();
+                    Intent intent = new Intent(this, CheckPasswordActivity.class);
+                    intent.putExtra("userID", userID);
+                    startActivityForResult(intent, 5);
                 }
 
-
-            }
         });
 
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            if(data.getExtras().getBoolean("check")){
+                Toast.makeText(getApplicationContext(), "결제가 완료되었습니다.", Toast.LENGTH_SHORT).show();
+
+                // 포인트 차감후 다시 포인트 가져오기
+                Handler mHandler = new Handler();
+                mHandler.postDelayed(new Runnable() {
+
+                    public void run() {
+
+                        userpoint = String.valueOf(mid1);
+
+                        Response.Listener<String> responseListener1 = new Response.Listener<String>() {
+
+                            @Override
+                            public void onResponse(String response) {
+
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
+                                    boolean success = (Boolean) jsonObject.get("success");
+
+                                    if (success) {
+                                        Toast.makeText(getApplicationContext(), "포인트 업데이트 완료 " + userpoint + " 포인트", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "포인트 업데이트 실패", Toast.LENGTH_SHORT).show();
+                                    }
+
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        };
+
+                        UpdatePointRequest upPRequest = new UpdatePointRequest(userID, userpoint, responseListener1);
+                        RequestQueue queue = Volley.newRequestQueue(BasketActivity.this);
+                        queue.add(upPRequest);
+                    }
+                }, 1000);
+
+                // 포인트 가져오기
+                Response.Listener<String> responseListener2 = new Response.Listener<String>() {
+
+                    @Override
+                    public void onResponse(String response) {
+
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            boolean success = (Boolean) jsonObject.get("success");
+                            userpoint = (String) jsonObject.get("userPoint");
+
+                            if (success) {
+                                Log.d("userpoint", userpoint);
+//                        Toast.makeText(getApplicationContext(), "가져오기 성공" + userpoint, Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getApplicationContext(), "포인트 가져오기 실패", Toast.LENGTH_SHORT).show();
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                };
+
+                mHandler.postDelayed(new Runnable() {
+                    public void run() {
+                        GetPointRequest getPRequest = new GetPointRequest(userID, responseListener2);
+                        RequestQueue queue = Volley.newRequestQueue(BasketActivity.this);
+                        queue.add(getPRequest);
+                    }
+                }, 2000);
+
+                mHandler.postDelayed(new Runnable() {
+                    public void run() {
+                        allP.setText(userpoint);
+                    }
+                }, 3000);
+
+                delBtn.callOnClick();
+
+//
+
+                BAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     class BackgroundTask extends AsyncTask<Void, Void, String> {

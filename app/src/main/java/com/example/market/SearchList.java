@@ -51,7 +51,7 @@ public class SearchList extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView parent, View v, int position, long id){
-                MarketIntent mintent = new MarketIntent(SearchList.this, MainActivity.class);
+                MarketIntent mintent = new MarketIntent(SearchList.this, ProductActivity.class);
                 mintent.putExtra("userID", userID);
                 mintent.putExtra("product", list.get(position));
 

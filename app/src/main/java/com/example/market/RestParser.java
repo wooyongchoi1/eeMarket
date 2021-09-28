@@ -52,7 +52,7 @@ public class RestParser extends AsyncTask<List<ProductInfo>, Void, ArrayList<Pro
                 String name = titleNodeList.item(0).getChildNodes().item(0).getNodeValue();
                 titleNodeList = element.getElementsByTagName("ProductPrice");
                 String price = titleNodeList.item(0).getChildNodes().item(0).getNodeValue();
-                titleNodeList = element.getElementsByTagName("ProductImage200");
+                titleNodeList = element.getElementsByTagName("ProductImage300");
                 String image = titleNodeList.item(0).getChildNodes().item(0).getNodeValue();
 
                 list.add(new ProductInfo(code, name, price, image));

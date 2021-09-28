@@ -59,7 +59,7 @@ public class MyAdapter extends BaseAdapter {
         }
 
         productName.setText(sample.get(position).getName());
-        productPrice.setText(sample.get(position).getPrice());
+        productPrice.setText(sample.get(position).getPrice()+"원");
         productImage.setImageBitmap(bitmap);
 
         return view;
